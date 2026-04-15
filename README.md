@@ -1,96 +1,245 @@
-# CRUD de Contatos - Processo Seletivo Node
+# CRUD de Contatos - Node.js (Vertical Slice)
 
-API REST para criar, listar, visualizar, desativar e excluir contatos, com persistencia em MongoDB, organizacao em Vertical Slice e testes automatizados.
+## 1. Visao Geral
 
-## Stack
+Este projeto implementa uma API REST para gerenciamento de contatos, seguindo uma arquitetura Vertical Slice por caso de uso.
+
+Escopo implementado:
+
+- Criar contato
+- Listar contatos ativos
+- Visualizar detalhes de contato ativo
+- Desativar contato
+- Excluir contato
+
+A solucao foi organizada para baixo acoplamento, alta coesao e boa testabilidade.
+
+## 2. Tecnologias Utilizadas
 
 - Node.js
 - TypeScript
-- Express
+- Express 5
 - MongoDB com Mongoose
-- Jest + Supertest
+- Jest
+- Supertest
+- mongodb-memory-server
+- ts-jest
 
-## Regras de Negocio Implementadas
+## 3. Estrutura do Projeto
 
-- Campos do contato: `nome`, `dataNascimento`, `sexo`, `idade`.
-- A `idade` e calculada em tempo de execucao.
-- O contato precisa ser maior de idade (18+).
-- A idade nao pode ser menor que zero.
-- A data de nascimento nao pode ser maior que a data atual.
-- Apenas contatos ativos aparecem na listagem.
-- Apenas contatos ativos podem ter detalhes consultados.
-- Desativacao e feita por soft delete (`ativo = false`).
-- Exclusao remove fisicamente o registro.
-
-## Arquitetura (Vertical Slice)
-
+```text
+crud-node/
+├── package.json
+├── tsconfig.json
+├── jest.config.js
+├── .env.example
+├── README.md
+├── src/
+│   ├── app.ts
+│   ├── main.ts
+│   ├── features/
+│   │   └── contato/
+│   │       ├── index.ts
+│   │       ├── create-contact/
+│   │       ├── list-active-contacts/
+│   │       ├── get-active-contact-details/
+│   │       ├── deactivate-contact/
+│   │       └── delete-contact/
+│   └── shared/
+│       ├── config/
+│       ├── database/
+│       └── http/
+└── tests/
+    ├── integration/
+    └── unit/
 ```
-src/
-  features/
-    contato/
-      create-contact/
-      list-active-contacts/
-      get-active-contact-details/
-      deactivate-contact/
-      delete-contact/
-  shared/
+
+Cada slice de contato contem sua propria estrutura de:
+
+- endpoint
+- handler
+- validator
+- response
+- application
+- domain
+- infrastructure
+
+## 4. Como Rodar a Aplicacao
+
+### 4.1 Pre-requisitos
+
+- Node.js instalado
+- MongoDB disponivel (local ou remoto)
+
+### 4.2 Configuracao de ambiente
+
+Crie seu arquivo `.env` com base no `.env.example`:
+
+```bash
+cp .env.example .env
 ```
 
-### Separacao de Responsabilidades
+Exemplo de configuracao:
 
-- Cada pasta de caso de uso contem seu endpoint, handler, validator e response.
-- Cada pasta de caso de uso contem sua camada de application, domain e infrastructure.
-- O modulo fica isolado por fatia funcional, reduzindo acoplamento entre casos de uso.
+```env
+PORT=3000
+MONGO_URI=mongodb://localhost:27017/contatosdb
+```
 
-## Endpoints
+### 4.3 Instalar dependencias e executar
 
-Base URL: `http://localhost:3000/api/contatos`
+```bash
+npm install
+npm run dev
+```
 
-- `POST /` cria contato
-- `GET /` lista contatos ativos
-- `GET /:id` detalhes de contato ativo
-- `PATCH /:id/desativar` desativa contato
-- `DELETE /:id` exclui contato
+Ao subir, a API ficara disponivel no host configurado (por padrao, porta 3000).
 
-### Exemplo de Criacao
+Health check:
+
+```http
+GET /health
+```
+
+## 5. Endpoints da API
+
+Base path: `/api/contatos`
+
+### 5.1 Criar contato
+
+`POST /api/contatos`
+
+Exemplo de request:
 
 ```json
 {
   "nome": "Maria Silva",
-  "dataNascimento": "1990-04-10T00:00:00.000Z",
+  "dataNascimento": "1990-01-10T00:00:00.000Z",
   "sexo": "FEMININO"
 }
 ```
 
-## Como Executar
+### 5.2 Listar contatos ativos
 
-1. Copie `.env.example` para `.env`.
-2. Ajuste `MONGO_URI` se necessario.
-3. Instale dependencias:
+`GET /api/contatos`
 
-```bash
-npm install
-```
+### 5.3 Obter detalhes de contato ativo
 
-4. Rode em desenvolvimento:
+`GET /api/contatos/{id}`
 
-```bash
-npm run dev
-```
+### 5.4 Desativar contato
 
-## Build e Execucao
+`PATCH /api/contatos/{id}/desativar`
 
-```bash
-npm run build
-npm start
-```
+### 5.5 Excluir contato
 
-## Testes
+`DELETE /api/contatos/{id}`
+
+Observacao:
+
+- Desativacao e soft delete funcional (`ativo = false`).
+- Exclusao e fisica (remove o documento do banco).
+
+## 6. Regras de Negocio
+
+As regras ficam centralizadas no dominio e nos validators dos slices:
+
+- Nome obrigatorio e com no minimo 3 caracteres.
+- Data de nascimento obrigatoria e valida.
+- Data de nascimento nao pode ser maior que a data atual.
+- Contato deve ser maior de idade (`>= 18`).
+- Sexo deve ser um valor valido: `MASCULINO`, `FEMININO` ou `OUTRO`.
+- Idade e calculada em tempo de execucao, nao persistida.
+- Listagem e detalhes consideram apenas contatos ativos.
+
+## 7. Como a Aplicacao Funciona Internamente
+
+Fluxo simplificado de uma requisicao:
+
+1. O endpoint do slice recebe o request.
+2. O validator do slice valida entrada e formato.
+3. O use case executa regra de negocio.
+4. O repositorio persiste/busca dados via Mongoose.
+5. O response mapper devolve DTO com idade calculada em runtime.
+
+Esse fluxo evita espalhar regra de negocio na camada HTTP.
+
+## 8. Arquitetura Adotada e Motivacoes
+
+### 8.1 Por que Vertical Slice
+
+A estrutura por caso de uso foi escolhida para:
+
+- Organizar por funcionalidade, nao por camada tecnica horizontal.
+- Reduzir acoplamento entre operacoes.
+- Facilitar manutencao e evolucao incremental.
+- Melhorar rastreabilidade de ponta a ponta por operacao.
+
+### 8.2 Onde estao as responsabilidades
+
+- `src/features/contato/*`: casos de uso de contatos.
+- `src/shared/database`: conexao e utilitarios de banco.
+- `src/shared/http`: padrao de erros e middleware de tratamento.
+- `tests/*`: validacao unitario + integracao.
+
+## 9. Decisoes de Design (SOLID)
+
+- SRP: cada slice tem responsabilidade unica por caso de uso.
+- OCP: novas operacoes entram como novos slices, sem quebrar os existentes.
+- LSP: contratos de repositorio com comportamento previsivel.
+- ISP: contratos de uso direto e enxutos por slice.
+- DIP: handlers dependem de abstrações de use case/repository, nao de detalhes HTTP.
+
+## 10. Testes Automatizados
+
+### 10.1 Rodar os testes
 
 ```bash
 npm test
 ```
 
-- Testes unitarios validam regras de dominio e casos de uso.
-- Testes de integracao validam os fluxos REST com Mongo em memoria.
-- Cobertura minima global configurada em 80%.
+Modo watch:
+
+```bash
+npm run test:watch
+```
+
+### 10.2 Tipos de teste implementados
+
+Unitarios:
+
+- entidade de dominio `Contact`
+- use cases de criar, desativar, excluir e obter detalhes
+
+Integracao (Supertest + Mongo em memoria):
+
+- criacao valida/invalida
+- listagem somente de ativos
+- bloqueio de detalhes para contato desativado
+- exclusao seguida de 404 no GET
+
+Cobertura:
+
+- threshold global configurado em 80% para statements, functions e lines.
+
+## 11. Persistencia e Dados
+
+Banco padrao: MongoDB.
+
+- O schema e definido com Mongoose em cada slice.
+- A conexao usa `MONGO_URI`.
+- IDs invalidos sao tratados como erro de validacao/not found conforme fluxo do caso de uso.
+
+## 12. Criterios Tecnicos Atendidos no Escopo Atual
+
+- API REST em Node.js com TypeScript.
+- Persistencia em banco NoSQL (MongoDB) com Mongoose.
+- Separacao de regras de negocio e camada de apresentacao.
+- Arquitetura Vertical Slice por caso de uso.
+- Testes unitarios e de integracao com execucao automatizada.
+
+Se quiser, posso complementar este README com:
+
+- colecao de requests para Postman/Insomnia,
+- secao de troubleshooting (MongoDB e variaveis de ambiente),
+- sugestao de pipeline CI (lint + test + build).
