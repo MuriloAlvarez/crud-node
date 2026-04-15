@@ -9,6 +9,8 @@ Escopo implementado:
 - Criar contato
 - Listar contatos ativos
 - Visualizar detalhes de contato ativo
+- Atualizar contato ativo
+- Ativar contato
 - Desativar contato
 - Excluir contato
 
@@ -40,11 +42,13 @@ crud-node/
 │   ├── features/
 │   │   └── contato/
 │   │       ├── index.ts
+│   │       ├── activate-contact/
 │   │       ├── create-contact/
-│   │       ├── list-active-contacts/
-│   │       ├── get-active-contact-details/
 │   │       ├── deactivate-contact/
-│   │       └── delete-contact/
+│   │       ├── delete-contact/
+│   │       ├── get-active-contact-details/
+│   │       ├── list-active-contacts/
+│   │       └── update-active-contact/
 │   └── shared/
 │       ├── config/
 │       ├── database/
@@ -131,7 +135,15 @@ Exemplo de request:
 
 `PATCH /api/contatos/{id}/desativar`
 
-### 5.5 Excluir contato
+### 5.5 Atualizar contato ativo
+
+`PUT /api/contatos/{id}`
+
+### 5.6 Ativar contato
+
+`PATCH /api/contatos/{id}/ativar`
+
+### 5.7 Excluir contato
 
 `DELETE /api/contatos/{id}`
 
@@ -150,7 +162,7 @@ As regras ficam centralizadas no dominio e nos validators dos slices:
 - Contato deve ser maior de idade (`>= 18`).
 - Sexo deve ser um valor valido: `MASCULINO`, `FEMININO` ou `OUTRO`.
 - Idade e calculada em tempo de execucao, nao persistida.
-- Listagem e detalhes consideram apenas contatos ativos.
+- Listagem, detalhes e atualizacao consideram apenas contatos ativos.
 
 ## 7. Como a Aplicacao Funciona Internamente
 
@@ -209,13 +221,15 @@ npm run test:watch
 Unitarios:
 
 - entidade de dominio `Contact`
-- use cases de criar, desativar, excluir e obter detalhes
+- use cases de criar, listar ativos, obter detalhes, atualizar ativo, ativar, desativar e excluir
 
 Integracao (Supertest + Mongo em memoria):
 
 - criacao valida/invalida
 - listagem somente de ativos
 - bloqueio de detalhes para contato desativado
+- atualizacao permitida apenas para contato ativo
+- ativacao de contato desativado
 - exclusao seguida de 404 no GET
 
 Cobertura:

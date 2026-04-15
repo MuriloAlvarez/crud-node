@@ -1,0 +1,42 @@
+## Dependencies
+node_modules/
+
+## Build artifacts
+dist/
+coverage/
+*.tsbuildinfo
+
+## Environment files (keep template committed)
+.env
+.env.*
+!.env.example
+
+## Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+## Tool caches
+.eslintcache
+.npm/
+.pnpm-store/
+
+## Temporary/cache files
+.cache/
+.nyc_output/
+tmp/
+*.tmp
+*.bak
+
+## Local notes
+prompt.txt
+
+## Editor/OS files
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
