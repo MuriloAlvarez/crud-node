@@ -113,6 +113,81 @@ describe("Contact routes integration", () => {
     expect(response.body.code).toBe("CONTACT_NOT_FOUND");
   });
 
+  it("deve atualizar contato ativo", async () => {
+    const created = await request(app)
+      .post("/api/contatos")
+      .send({
+        nome: "Contato Atualizar",
+        dataNascimento: createBirthDateYearsAgoIso(33),
+        sexo: "MASCULINO",
+      });
+
+    const response = await request(app)
+      .put(`/api/contatos/${created.body.id}`)
+      .send({
+        nome: "Contato Atualizado",
+        dataNascimento: createBirthDateYearsAgoIso(34),
+        sexo: "FEMININO",
+      });
+
+    expect(response.status).toBe(200);
+    expect(response.body.nome).toBe("Contato Atualizado");
+    expect(response.body.sexo).toBe("FEMININO");
+    expect(response.body.ativo).toBe(true);
+  });
+
+  it("deve bloquear atualizacao de contato inativo", async () => {
+    const created = await request(app)
+      .post("/api/contatos")
+      .send({
+        nome: "Contato Inativo Atualizacao",
+        dataNascimento: createBirthDateYearsAgoIso(29),
+        sexo: "OUTRO",
+      });
+
+    await request(app)
+      .patch(`/api/contatos/${created.body.id}/desativar`)
+      .send();
+
+    const response = await request(app)
+      .put(`/api/contatos/${created.body.id}`)
+      .send({
+        nome: "Contato Nao Deve Atualizar",
+        dataNascimento: createBirthDateYearsAgoIso(30),
+        sexo: "FEMININO",
+      });
+
+    expect(response.status).toBe(404);
+    expect(response.body.code).toBe("CONTACT_NOT_FOUND");
+  });
+
+  it("deve ativar contato desativado", async () => {
+    const created = await request(app)
+      .post("/api/contatos")
+      .send({
+        nome: "Contato Reativar",
+        dataNascimento: createBirthDateYearsAgoIso(41),
+        sexo: "MASCULINO",
+      });
+
+    await request(app)
+      .patch(`/api/contatos/${created.body.id}/desativar`)
+      .send();
+
+    const activateResponse = await request(app)
+      .patch(`/api/contatos/${created.body.id}/ativar`)
+      .send();
+
+    expect(activateResponse.status).toBe(200);
+    expect(activateResponse.body.ativo).toBe(true);
+
+    const detailResponse = await request(app).get(
+      `/api/contatos/${created.body.id}`,
+    );
+    expect(detailResponse.status).toBe(200);
+    expect(detailResponse.body.ativo).toBe(true);
+  });
+
   it("deve excluir contato", async () => {
     const created = await request(app)
       .post("/api/contatos")
