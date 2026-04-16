@@ -1,5 +1,5 @@
-import { Contact } from "../domain/entities/contact";
-import { ContactSex } from "../domain/entities/contact-sex";
+import { Contact } from "../../shared/domain/entities/contact";
+import { ContactSex } from "../../shared/domain/entities/contact-sex";
 
 export type ContactResponse = {
   id?: string;

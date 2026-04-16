@@ -2,8 +2,8 @@ import { Router } from "express";
 
 import { asyncHandler } from "../../../../shared/http/async-handler";
 import { ActivateContactUseCase } from "../application/activate-contact.use-case";
-import { ContactModel } from "../infrastructure/mongoose/contact-model";
-import { MongooseContactRepository } from "../infrastructure/mongoose/mongoose-contact-repository";
+import { ContactModel } from "../../shared/infrastructure/mongoose/contact-model";
+import { MongooseContactRepository } from "../../shared/infrastructure/mongoose/mongoose-contact-repository";
 import { ActivateContactHandler } from "./activate-contact-handler";
 
 export function createActivateContactEndpoint(): Router {

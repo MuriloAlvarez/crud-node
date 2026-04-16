@@ -1,5 +1,5 @@
-import { ContactRepository } from "../domain/repositories/contact-repository";
-import { Contact } from "../domain/entities/contact";
+import { ContactRepository } from "../../shared/domain/repositories/contact-repository";
+import { Contact } from "../../shared/domain/entities/contact";
 import { CreateContactInput } from "./create-contact-input.dto";
 
 export class CreateContactUseCase {

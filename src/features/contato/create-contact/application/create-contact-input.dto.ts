@@ -1,4 +1,4 @@
-import { ContactSex } from "../domain/entities/contact-sex";
+import { ContactSex } from "../../shared/domain/entities/contact-sex";
 
 export type CreateContactInput = {
   nome: string;

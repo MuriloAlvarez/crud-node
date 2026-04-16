@@ -1,5 +1,5 @@
-import { CONTACT_SEX_VALUES, ContactSex } from "../domain/entities/contact-sex";
-import { ContactValidationError } from "../domain/errors/contact-errors";
+import { CONTACT_SEX_VALUES, ContactSex } from "../../shared/domain/entities/contact-sex";
+import { ContactValidationError } from "../../shared/domain/errors/contact-errors";
 
 export type ParsedCreateContactBody = {
   nome: string;

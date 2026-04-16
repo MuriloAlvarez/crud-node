@@ -1,6 +1,6 @@
-import { ContactRepository } from "../domain/repositories/contact-repository";
-import { ContactNotFoundError } from "../domain/errors/contact-errors";
-import { Contact } from "../domain/entities/contact";
+import { ContactRepository } from "../../shared/domain/repositories/contact-repository";
+import { ContactNotFoundError } from "../../shared/domain/errors/contact-errors";
+import { Contact } from "../../shared/domain/entities/contact";
 
 export class GetActiveContactDetailsUseCase {
   public constructor(private readonly contactRepository: ContactRepository) {}

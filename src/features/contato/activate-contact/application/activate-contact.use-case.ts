@@ -1,6 +1,6 @@
-import { Contact } from "../domain/entities/contact";
-import { ContactNotFoundError } from "../domain/errors/contact-errors";
-import { ContactRepository } from "../domain/repositories/contact-repository";
+import { Contact } from "../../shared/domain/entities/contact";
+import { ContactNotFoundError } from "../../shared/domain/errors/contact-errors";
+import { ContactRepository } from "../../shared/domain/repositories/contact-repository";
 
 export class ActivateContactUseCase {
   public constructor(private readonly contactRepository: ContactRepository) {}

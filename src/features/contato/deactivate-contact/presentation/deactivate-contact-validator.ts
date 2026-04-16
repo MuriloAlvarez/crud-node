@@ -1,4 +1,4 @@
-import { ContactValidationError } from "../domain/errors/contact-errors";
+import { ContactValidationError } from "../../shared/domain/errors/contact-errors";
 
 export function parseContactId(rawId: unknown): string {
   if (typeof rawId !== "string" || rawId.trim().length === 0) {

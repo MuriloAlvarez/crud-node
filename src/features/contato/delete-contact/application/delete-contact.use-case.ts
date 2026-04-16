@@ -1,5 +1,5 @@
-import { ContactRepository } from "../domain/repositories/contact-repository";
-import { ContactNotFoundError } from "../domain/errors/contact-errors";
+import { ContactRepository } from "../../shared/domain/repositories/contact-repository";
+import { ContactNotFoundError } from "../../shared/domain/errors/contact-errors";
 
 export class DeleteContactUseCase {
   public constructor(private readonly contactRepository: ContactRepository) {}

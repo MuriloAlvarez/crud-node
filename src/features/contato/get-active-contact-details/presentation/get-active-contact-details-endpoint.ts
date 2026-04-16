@@ -1,8 +1,8 @@
 import { Router } from "express";
 
 import { asyncHandler } from "../../../../shared/http/async-handler";
-import { ContactModel } from "../infrastructure/mongoose/contact-model";
-import { MongooseContactRepository } from "../infrastructure/mongoose/mongoose-contact-repository";
+import { ContactModel } from "../../shared/infrastructure/mongoose/contact-model";
+import { MongooseContactRepository } from "../../shared/infrastructure/mongoose/mongoose-contact-repository";
 import { GetActiveContactDetailsUseCase } from "../application/get-active-contact-details.use-case";
 import { GetActiveContactDetailsHandler } from "./get-active-contact-details-handler";
 

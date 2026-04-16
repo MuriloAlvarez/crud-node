@@ -1,4 +1,4 @@
-import { ContactValidationError } from "../domain/errors/contact-errors";
+import { ContactValidationError } from "../../shared/domain/errors/contact-errors";
 
 export function parseListActiveContactsRequest(rawQuery: unknown): void {
   if (!rawQuery || typeof rawQuery !== "object") {
