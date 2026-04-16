@@ -4,11 +4,19 @@ module.exports = {
   testEnvironment: "node",
   roots: ["<rootDir>/tests"],
   moduleFileExtensions: ["ts", "js", "json"],
+  moduleNameMapper: {
+    "^@contato/(.*)$": "<rootDir>/src/features/contato/$1",
+    "^@shared/(.*)$": "<rootDir>/src/shared/$1",
+  },
   collectCoverageFrom: [
-    "src/features/contato/**/application/**/*.ts",
-    "src/features/contato/**/presentation/**/*.ts",
-    "src/features/contato/shared/domain/**/*.ts",
+    "src/features/contato/use-cases/**/*.ts",
+    "src/features/contato/controllers/**/*.ts",
+    "src/features/contato/validations/**/*.ts",
+    "src/features/contato/dtos/**/*.ts",
+    "src/features/contato/domain/**/*.ts",
+    "src/features/contato/repositories/**/*.ts",
     "src/shared/**/*.ts",
+    "!src/features/contato/infrastructure/**",
     "!src/main.ts",
     "!src/app.ts"
   ],

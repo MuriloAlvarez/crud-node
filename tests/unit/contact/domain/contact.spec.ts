@@ -1,4 +1,4 @@
-import { Contact } from "../../../../src/features/contato/shared/domain/entities/contact";
+import { Contact } from "@contato/domain/entities/contact";
 
 function createBirthDateYearsAgo(years: number): Date {
   const date = new Date();

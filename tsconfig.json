@@ -3,6 +3,11 @@
     "target": "ES2022",
     "module": "CommonJS",
     "moduleResolution": "Node",
+    "baseUrl": ".",
+    "paths": {
+      "@contato/*": ["src/features/contato/*"],
+      "@shared/*": ["src/shared/*"]
+    },
     "outDir": "dist",
     "rootDir": ".",
     "strict": true,

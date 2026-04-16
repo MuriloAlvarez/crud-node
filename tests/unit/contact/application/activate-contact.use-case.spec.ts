@@ -1,7 +1,7 @@
-import { ActivateContactUseCase } from "../../../../src/features/contato/activate-contact/application/activate-contact.use-case";
-import { Contact } from "../../../../src/features/contato/shared/domain/entities/contact";
-import { ContactNotFoundError } from "../../../../src/features/contato/shared/domain/errors/contact-errors";
-import { ContactRepository } from "../../../../src/features/contato/shared/domain/repositories/contact-repository";
+import { ActivateContactUseCase } from "@contato/use-cases/activate-contact.use-case";
+import { Contact } from "@contato/domain/entities/contact";
+import { ContactNotFoundError } from "@contato/domain/errors/contact-errors";
+import { ContactRepository } from "@contato/repositories/contact-repository";
 
 function createBirthDateYearsAgo(years: number): Date {
   const date = new Date();
