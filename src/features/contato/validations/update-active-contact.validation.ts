@@ -1,5 +1,8 @@
 import { UpdateActiveContactInput } from "@contato/dtos/update-active-contact-input.dto";
-import { CONTACT_SEX_VALUES, ContactSex } from "@contato/domain/entities/contact-sex";
+import {
+  CONTACT_SEX_VALUES,
+  ContactSex,
+} from "@contato/domain/entities/contact-sex";
 import { ContactValidationError } from "@contato/domain/errors/contact-errors";
 
 type ParsedUpdateActiveContactBody = Omit<UpdateActiveContactInput, "id">;

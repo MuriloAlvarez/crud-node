@@ -1,5 +1,8 @@
 import { CreateContactInput } from "@contato/dtos/create-contact-input.dto";
-import { CONTACT_SEX_VALUES, ContactSex } from "@contato/domain/entities/contact-sex";
+import {
+  CONTACT_SEX_VALUES,
+  ContactSex,
+} from "@contato/domain/entities/contact-sex";
 import { ContactValidationError } from "@contato/domain/errors/contact-errors";
 
 export function parseCreateContactBody(rawBody: unknown): CreateContactInput {

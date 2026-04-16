@@ -45,7 +45,9 @@ export function createContactController(): Router {
     asyncHandler(async (req: Request, res: Response): Promise<void> => {
       parseListActiveContactsRequest(req.query);
       const contacts = await listActiveContactsUseCase.execute();
-      res.status(200).json(contacts.map((contact) => toContactResponse(contact)));
+      res
+        .status(200)
+        .json(contacts.map((contact) => toContactResponse(contact)));
     }),
   );
 
