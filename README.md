@@ -2,7 +2,7 @@
 
 ## 1. Visao Geral
 
-Este projeto implementa uma API REST para gerenciamento de contatos, seguindo uma arquitetura Vertical Slice por caso de uso.
+Este projeto implementa uma API REST para gerenciamento de contatos, seguindo uma arquitetura Vertical Slice por caso de uso dentro de um unico contexto de contatos.
 
 Escopo implementado:
 
@@ -42,6 +42,10 @@ crud-node/
 │   ├── features/
 │   │   └── contato/
 │   │       ├── index.ts
+│   │       ├── contacts-module.ts
+│   │       ├── shared/
+│   │       │   ├── domain/
+│   │       │   └── infrastructure/
 │   │       ├── activate-contact/
 │   │       ├── create-contact/
 │   │       ├── deactivate-contact/
@@ -58,15 +62,15 @@ crud-node/
     └── unit/
 ```
 
-Cada slice de contato contem sua propria estrutura de:
+Cada fluxo de contato contem estrutura de:
 
 - endpoint
 - handler
 - validator
 - response
 - application
-- domain
-- infrastructure
+
+O dominio e a infraestrutura compartilhados do contexto ficam centralizados em `src/features/contato/shared`.
 
 ## 4. Como Rodar a Aplicacao
 
@@ -186,10 +190,12 @@ A estrutura por caso de uso foi escolhida para:
 - Reduzir acoplamento entre operacoes.
 - Facilitar manutencao e evolucao incremental.
 - Melhorar rastreabilidade de ponta a ponta por operacao.
+- Evitar duplicacao de regras compartilhadas com um Shared interno ao contexto.
 
 ### 8.2 Onde estao as responsabilidades
 
-- `src/features/contato/*`: casos de uso de contatos.
+- `src/features/contato/*`: fluxos de contatos (application + presentation).
+- `src/features/contato/shared/*`: dominio e infraestrutura compartilhados do contexto.
 - `src/shared/database`: conexao e utilitarios de banco.
 - `src/shared/http`: padrao de erros e middleware de tratamento.
 - `tests/*`: validacao unitario + integracao.
@@ -240,7 +246,7 @@ Cobertura:
 
 Banco padrao: MongoDB.
 
-- O schema e definido com Mongoose em cada slice.
+- O schema e definido com Mongoose na infraestrutura compartilhada do contexto de contatos.
 - A conexao usa `MONGO_URI`.
 - IDs invalidos sao tratados como erro de validacao/not found conforme fluxo do caso de uso.
 

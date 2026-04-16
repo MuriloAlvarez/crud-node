@@ -7,7 +7,7 @@ module.exports = {
   collectCoverageFrom: [
     "src/features/contato/**/application/**/*.ts",
     "src/features/contato/**/presentation/**/*.ts",
-    "src/features/contato/create-contact/domain/**/*.ts",
+    "src/features/contato/shared/domain/**/*.ts",
     "src/shared/**/*.ts",
     "!src/main.ts",
     "!src/app.ts"
