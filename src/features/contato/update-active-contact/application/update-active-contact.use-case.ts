@@ -1,6 +1,6 @@
-import { Contact } from "../domain/entities/contact";
-import { ContactNotFoundError } from "../domain/errors/contact-errors";
-import { ContactRepository } from "../domain/repositories/contact-repository";
+import { Contact } from "../../shared/domain/entities/contact";
+import { ContactNotFoundError } from "../../shared/domain/errors/contact-errors";
+import { ContactRepository } from "../../shared/domain/repositories/contact-repository";
 import { UpdateActiveContactInput } from "./update-active-contact-input.dto";
 
 export class UpdateActiveContactUseCase {
