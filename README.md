@@ -1,41 +1,40 @@
-# CRUD de Contatos - Node.js (Vertical Slice)
+# CRUD de Contatos - API REST com Node.js e TypeScript
 
 ## 1. Visao Geral
 
-Este projeto implementa uma API REST para gerenciamento de contatos, seguindo uma arquitetura Vertical Slice por caso de uso dentro de um unico contexto de contatos.
+Este projeto implementa uma API REST para gerenciamento de contatos, usando arquitetura Vertical Slice orientada ao contexto de contato.
 
-Escopo implementado:
+Operacoes implementadas:
 
 - Criar contato
 - Listar contatos ativos
-- Visualizar detalhes de contato ativo
+- Obter detalhes de contato ativo
 - Atualizar contato ativo
 - Ativar contato
 - Desativar contato
 - Excluir contato
 
-A solucao foi organizada para baixo acoplamento, alta coesao e boa testabilidade.
+Objetivos tecnicos da organizacao:
 
-## 2. Tecnologias Utilizadas
+- Baixo acoplamento entre regras de negocio e camada HTTP
+- Alta coesao dentro do contexto de contato
+- Facilidade para testar e evoluir casos de uso
+
+## 2. Stack Tecnologico
 
 - Node.js
 - TypeScript
 - Express 5
-- MongoDB com Mongoose
+- MongoDB + Mongoose
 - Jest
 - Supertest
 - mongodb-memory-server
 - ts-jest
 
-## 3. Estrutura do Projeto
+## 3. Estrutura Atual do Projeto
 
 ```text
 crud-node/
-├── package.json
-├── tsconfig.json
-├── jest.config.js
-├── .env.example
-├── README.md
 ├── src/
 │   ├── app.ts
 │   ├── main.ts
@@ -43,81 +42,184 @@ crud-node/
 │   │   └── contato/
 │   │       ├── index.ts
 │   │       ├── contacts-module.ts
-│   │       ├── shared/
-│   │       │   ├── domain/
-│   │       │   └── infrastructure/
-│   │       ├── activate-contact/
-│   │       ├── create-contact/
-│   │       ├── deactivate-contact/
-│   │       ├── delete-contact/
-│   │       ├── get-active-contact-details/
-│   │       ├── list-active-contacts/
-│   │       └── update-active-contact/
+│   │       ├── controllers/
+│   │       │   └── contact.controller.ts
+│   │       ├── use-cases/
+│   │       │   ├── create-contact.use-case.ts
+│   │       │   ├── list-active-contacts.use-case.ts
+│   │       │   ├── get-active-contact-details.use-case.ts
+│   │       │   ├── update-active-contact.use-case.ts
+│   │       │   ├── activate-contact.use-case.ts
+│   │       │   ├── deactivate-contact.use-case.ts
+│   │       │   └── delete-contact.use-case.ts
+│   │       ├── domain/
+│   │       │   ├── entities/
+│   │       │   │   ├── contact.ts
+│   │       │   │   └── contact-sex.ts
+│   │       │   ├── errors/
+│   │       │   │   └── contact-errors.ts
+│   │       │   └── services/
+│   │       │       └── age-calculator.ts
+│   │       ├── dtos/
+│   │       │   ├── create-contact-input.dto.ts
+│   │       │   ├── update-active-contact-input.dto.ts
+│   │       │   └── contact-response.dto.ts
+│   │       ├── validations/
+│   │       │   ├── create-contact.validation.ts
+│   │       │   ├── update-active-contact.validation.ts
+│   │       │   ├── list-active-contacts.validation.ts
+│   │       │   └── parse-contact-id.validation.ts
+│   │       ├── repositories/
+│   │       │   └── contact-repository.ts
+│   │       └── infrastructure/
+│   │           └── mongoose/
+│   │               ├── contact-model.ts
+│   │               └── mongoose-contact-repository.ts
 │   └── shared/
 │       ├── config/
+│       │   └── env.ts
 │       ├── database/
+│       │   └── mongoose.ts
 │       └── http/
-└── tests/
-    ├── integration/
-    └── unit/
+│           ├── app-error.ts
+│           ├── async-handler.ts
+│           └── error-handler.ts
+├── tests/
+│   ├── integration/
+│   │   └── contact-routes.spec.ts
+│   └── unit/
+│       └── contact/
+│           ├── application/
+│           └── domain/
+├── package.json
+├── tsconfig.json
+├── jest.config.js
+└── .env.example
 ```
 
-Cada fluxo de contato contem estrutura de:
+Resumo de responsabilidades:
 
-- endpoint
-- handler
-- validator
-- response
-- application
+- controllers: define rotas HTTP e conecta validacao, use-cases e resposta
+- use-cases: executa regra de negocio por operacao
+- domain: entidade, erros de negocio e servicos de dominio
+- repositories: contrato de persistencia
+- infrastructure/mongoose: implementacao concreta do repositorio
+- shared: config, conexao de banco e tratamento padrao de erro HTTP
 
-O dominio e a infraestrutura compartilhados do contexto ficam centralizados em `src/features/contato/shared`.
+## 4. Arquitetura e Fluxo da Requisicao
 
-## 4. Como Rodar a Aplicacao
+Fluxo padrao de uma chamada:
 
-### 4.1 Pre-requisitos
+1. app.ts recebe a requisicao e encaminha para /api/contatos
+2. contact.controller.ts executa parse e validacao da entrada
+3. use-case correspondente aplica regra de negocio
+4. repositorio Mongoose acessa MongoDB
+5. DTO de resposta converte entidade para payload HTTP
+6. error-handler padroniza erros da aplicacao
+
+Esse desenho evita regra de negocio espalhada em controller e centraliza comportamento no dominio/use-cases.
+
+## 5. Entidade Contact e Regras de Negocio
+
+Regras principais:
+
+- nome e obrigatorio e precisa ter ao menos 3 caracteres
+- dataNascimento precisa ser data valida
+- dataNascimento nao pode estar no futuro
+- contato precisa ser maior de idade (18+)
+- sexo aceita apenas MASCULINO, FEMININO ou OUTRO
+- idade e calculada em tempo de execucao (nao e campo persistido)
+
+Comportamento dos casos de uso:
+
+- listar e detalhar retornam apenas contatos ativos
+- atualizar funciona apenas para contato ativo
+- ativar/desativar sao operacoes idempotentes
+- excluir remove o documento fisicamente
+
+## 6. Setup e Execucao Local
+
+### 6.1 Pre-requisitos
 
 - Node.js instalado
 - MongoDB disponivel (local ou remoto)
 
-### 4.2 Configuracao de ambiente
+### 6.2 Variaveis de ambiente
 
-Crie seu arquivo `.env` com base no `.env.example`:
+Crie o arquivo .env com base no exemplo:
 
 ```bash
 cp .env.example .env
 ```
 
-Exemplo de configuracao:
+Valores atuais:
 
 ```env
 PORT=3000
 MONGO_URI=mongodb://localhost:27017/contatosdb
 ```
 
-### 4.3 Instalar dependencias e executar
+Observacoes:
+
+- se PORT nao for informado, o padrao e 3000
+- se MONGO_URI nao for informado, o padrao e mongodb://localhost:27017/contatosdb
+- PORT invalido (NaN, zero ou negativo) interrompe inicializacao
+
+### 6.3 Instalar dependencias e subir em desenvolvimento
+
+Com Yarn:
+
+```bash
+corepack enable
+yarn install
+yarn dev
+```
+
+Com npm:
 
 ```bash
 npm install
 npm run dev
 ```
 
-Ao subir, a API ficara disponivel no host configurado (por padrao, porta 3000).
+### 6.4 Build e execucao
 
-Health check:
+```bash
+yarn build
+yarn start
+```
+
+### 6.5 Health check
 
 ```http
 GET /health
 ```
 
-## 5. Endpoints da API
+Resposta esperada:
 
-Base path: `/api/contatos`
+```json
+{
+  "status": "ok"
+}
+```
 
-### 5.1 Criar contato
+## 7. Endpoints da API
 
-`POST /api/contatos`
+Base path: /api/contatos
 
-Exemplo de request:
+| Metodo | Rota                        | Descricao               | Sucesso |
+| ------ | --------------------------- | ----------------------- | ------- |
+| POST   | /api/contatos               | Criar contato           | 201     |
+| GET    | /api/contatos               | Listar contatos ativos  | 200     |
+| GET    | /api/contatos/:id           | Detalhar contato ativo  | 200     |
+| PUT    | /api/contatos/:id           | Atualizar contato ativo | 200     |
+| PATCH  | /api/contatos/:id/ativar    | Ativar contato          | 200     |
+| PATCH  | /api/contatos/:id/desativar | Desativar contato       | 200     |
+| DELETE | /api/contatos/:id           | Excluir contato         | 204     |
+
+### Exemplo de criacao
+
+Request:
 
 ```json
 {
@@ -127,139 +229,113 @@ Exemplo de request:
 }
 ```
 
-### 5.2 Listar contatos ativos
+Response 201:
 
-`GET /api/contatos`
-
-### 5.3 Obter detalhes de contato ativo
-
-`GET /api/contatos/{id}`
-
-### 5.4 Desativar contato
-
-`PATCH /api/contatos/{id}/desativar`
-
-### 5.5 Atualizar contato ativo
-
-`PUT /api/contatos/{id}`
-
-### 5.6 Ativar contato
-
-`PATCH /api/contatos/{id}/ativar`
-
-### 5.7 Excluir contato
-
-`DELETE /api/contatos/{id}`
-
-Observacao:
-
-- Desativacao e soft delete funcional (`ativo = false`).
-- Exclusao e fisica (remove o documento do banco).
-
-## 6. Regras de Negocio
-
-As regras ficam centralizadas no dominio e nos validators dos slices:
-
-- Nome obrigatorio e com no minimo 3 caracteres.
-- Data de nascimento obrigatoria e valida.
-- Data de nascimento nao pode ser maior que a data atual.
-- Contato deve ser maior de idade (`>= 18`).
-- Sexo deve ser um valor valido: `MASCULINO`, `FEMININO` ou `OUTRO`.
-- Idade e calculada em tempo de execucao, nao persistida.
-- Listagem, detalhes e atualizacao consideram apenas contatos ativos.
-
-## 7. Como a Aplicacao Funciona Internamente
-
-Fluxo simplificado de uma requisicao:
-
-1. O endpoint do slice recebe o request.
-2. O validator do slice valida entrada e formato.
-3. O use case executa regra de negocio.
-4. O repositorio persiste/busca dados via Mongoose.
-5. O response mapper devolve DTO com idade calculada em runtime.
-
-Esse fluxo evita espalhar regra de negocio na camada HTTP.
-
-## 8. Arquitetura Adotada e Motivacoes
-
-### 8.1 Por que Vertical Slice
-
-A estrutura por caso de uso foi escolhida para:
-
-- Organizar por funcionalidade, nao por camada tecnica horizontal.
-- Reduzir acoplamento entre operacoes.
-- Facilitar manutencao e evolucao incremental.
-- Melhorar rastreabilidade de ponta a ponta por operacao.
-- Evitar duplicacao de regras compartilhadas com um Shared interno ao contexto.
-
-### 8.2 Onde estao as responsabilidades
-
-- `src/features/contato/*`: fluxos de contatos (application + presentation).
-- `src/features/contato/shared/*`: dominio e infraestrutura compartilhados do contexto.
-- `src/shared/database`: conexao e utilitarios de banco.
-- `src/shared/http`: padrao de erros e middleware de tratamento.
-- `tests/*`: validacao unitario + integracao.
-
-## 9. Decisoes de Design (SOLID)
-
-- SRP: cada slice tem responsabilidade unica por caso de uso.
-- OCP: novas operacoes entram como novos slices, sem quebrar os existentes.
-- LSP: contratos de repositorio com comportamento previsivel.
-- ISP: contratos de uso direto e enxutos por slice.
-- DIP: handlers dependem de abstrações de use case/repository, nao de detalhes HTTP.
-
-## 10. Testes Automatizados
-
-### 10.1 Rodar os testes
-
-```bash
-npm test
+```json
+{
+  "id": "507f1f77bcf86cd799439011",
+  "nome": "Maria Silva",
+  "dataNascimento": "1990-01-10T00:00:00.000Z",
+  "sexo": "FEMININO",
+  "idade": 35,
+  "ativo": true
+}
 ```
 
-Modo watch:
+## 8. Padrao de Erro da API
 
-```bash
-npm run test:watch
+Formato:
+
+```json
+{
+  "code": "CONTACT_VALIDATION_ERROR",
+  "message": "Campo nome e obrigatorio"
+}
 ```
 
-### 10.2 Tipos de teste implementados
+Codigos mais comuns:
 
-Unitarios:
+- CONTACT_VALIDATION_ERROR (400): erro de validacao de entrada ou regra de dominio
+- CONTACT_NOT_FOUND (404): contato inexistente ou nao elegivel para operacao
+- INVALID_ID (400): identificador invalido no fluxo HTTP/mongoose
+- INTERNAL_SERVER_ERROR (500): erro inesperado
 
-- entidade de dominio `Contact`
-- use cases de criar, listar ativos, obter detalhes, atualizar ativo, ativar, desativar e excluir
+## 9. Scripts Disponiveis
 
-Integracao (Supertest + Mongo em memoria):
+| Script     | Comando                     | Objetivo                   |
+| ---------- | --------------------------- | -------------------------- |
+| dev        | tsx watch src/main.ts       | desenvolvimento com reload |
+| build      | tsc -p tsconfig.json        | gera dist                  |
+| start      | node dist/main.js           | executa build em producao  |
+| lint       | tsc --noEmit                | validacao de tipos         |
+| test       | jest --coverage --runInBand | testes + cobertura         |
+| test:watch | jest --watch                | testes em watch            |
 
-- criacao valida/invalida
-- listagem somente de ativos
-- bloqueio de detalhes para contato desativado
-- atualizacao permitida apenas para contato ativo
-- ativacao de contato desativado
-- exclusao seguida de 404 no GET
+## 10. Testes e Cobertura
 
-Cobertura:
+Suites existentes:
 
-- threshold global configurado em 80% para statements, functions e lines.
+- Unitario de dominio: entidade Contact
+- Unitarios de aplicacao: 7 use-cases
+- Integracao: rotas de contato com Supertest e mongodb-memory-server
 
-## 11. Persistencia e Dados
+Comandos:
 
-Banco padrao: MongoDB.
+```bash
+yarn test
+yarn test:watch
+```
 
-- O schema e definido com Mongoose na infraestrutura compartilhada do contexto de contatos.
-- A conexao usa `MONGO_URI`.
-- IDs invalidos sao tratados como erro de validacao/not found conforme fluxo do caso de uso.
+Threshold global de cobertura:
 
-## 12. Criterios Tecnicos Atendidos no Escopo Atual
+- statements: 80
+- functions: 80
+- lines: 80
 
-- API REST em Node.js com TypeScript.
-- Persistencia em banco NoSQL (MongoDB) com Mongoose.
-- Separacao de regras de negocio e camada de apresentacao.
-- Arquitetura Vertical Slice por caso de uso.
-- Testes unitarios e de integracao com execucao automatizada.
+Escopo principal de cobertura:
 
-Se quiser, posso complementar este README com:
+- src/features/contato/use-cases
+- src/features/contato/controllers
+- src/features/contato/validations
+- src/features/contato/dtos
+- src/features/contato/domain
+- src/features/contato/repositories
+- src/shared
 
-- colecao de requests para Postman/Insomnia,
-- secao de troubleshooting (MongoDB e variaveis de ambiente),
-- sugestao de pipeline CI (lint + test + build).
+Exclusoes atuais:
+
+- src/features/contato/infrastructure
+- src/main.ts
+- src/app.ts
+
+## 11. Como Adicionar um Novo Caso de Uso
+
+Passo a passo sugerido:
+
+1. Criar DTO de entrada (se necessario) em src/features/contato/dtos
+2. Criar validacao em src/features/contato/validations
+3. Implementar use-case em src/features/contato/use-cases
+4. Reutilizar/estender contrato de repositorio em src/features/contato/repositories
+5. Implementar ajuste de persistencia em src/features/contato/infrastructure/mongoose
+6. Expor rota no controller central em src/features/contato/controllers/contact.controller.ts
+7. Criar teste unitario do use-case em tests/unit/contact/application
+8. Criar/ajustar teste de integracao em tests/integration/contact-routes.spec.ts
+
+## 12. Notas de Persistencia
+
+- Banco padrao: MongoDB
+- Colecao: contatos
+- indice ativo: 1 definido no schema
+- listagem de ativos e ordenada por nome ascendente
+
+## 13. Observacao sobre Estrutura Legada
+
+Pastas numeradas como 0-presentation, 1-application, 2-domain e 3-infrastructure podem aparecer em artefatos de cobertura antigos, mas nao fazem parte da estrutura ativa atual de src.
+
+## 14. Criterios Tecnicos Atendidos
+
+- API REST em Node.js com TypeScript
+- Persistencia em MongoDB via Mongoose
+- Separacao clara entre HTTP, aplicacao, dominio e infraestrutura
+- Arquitetura orientada a contexto Vertical Slice
+- Testes unitarios e de integracao com cobertura minima configurada
