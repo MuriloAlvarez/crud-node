@@ -1,6 +1,6 @@
 import { DeleteContactUseCase } from "../../../../src/features/contato/delete-contact/application/delete-contact.use-case";
-import { ContactNotFoundError } from "../../../../src/features/contato/delete-contact/domain/errors/contact-errors";
-import { ContactRepository } from "../../../../src/features/contato/delete-contact/domain/repositories/contact-repository";
+import { ContactNotFoundError } from "../../../../src/features/contato/shared/domain/errors/contact-errors";
+import { ContactRepository } from "../../../../src/features/contato/shared/domain/repositories/contact-repository";
 
 function createRepositoryMock(): jest.Mocked<ContactRepository> {
   return {
